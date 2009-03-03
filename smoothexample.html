@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Smooth Example</title>
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://server.noblemail/flot/excanvas.pack.js"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="http://server.noblemail.ca/flot/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="http://server.noblemail.ca/flot/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="smoothcurves.js"></script>
+ </head>
+    <body>
+    <h1>Smooth Curves</h1>
+
+    <div id="placeholder" style="width:800px;height:400px;"></div>
+    <p id="choices">Show:</p>
+    <div id="data"></div>
+
+<script id="source" language="javascript" type="text/javascript">
+$(function () {
+    var rawdata = [];
+    var lastx = 0; var lasty=3*Math.random() - 1.5; 
+    for (var j = 0; j<30; j += 1){
+      rawdata.push([lastx, lasty]);
+      lastx += 1+Math.random()*5;
+      lasty += 3*Math.random() - 1.5;
+    }
+    var smoother1 = new PlotSmoother(1);
+    var d1 = smoother1.smooth(rawdata);
+    var smoother2 = new PlotSmoother(2);
+    var d2 = smoother2.smooth(rawdata);
+    var datasets = {smoothdata1:{data:d1}, smoothdata2:{data:d2}, rawdata:{data:rawdata}};
+    var i = 0;
+    $.each(datasets, function(key, val) {
+        val.color = i;
+        ++i;
+    });
+    $('#choices').append(
+      '<br/><input type="checkbox" name="smoothdata1" checked="checked">smoothdata 1</input>'
+    ).append(
+      '<br/><input type="checkbox" name="smoothdata2" checked="checked">smoothdata 2</input>'
+    ).append(
+      '<br/><input type="checkbox" name="rawdata" checked="checked">rawdata</input>'
+    ).find("input").click(plotAccordingToChoices);
+    plotAccordingToChoices();
+    
+    function plotAccordingToChoices(){
+      var data = [];
+      $('#choices').find("input:checked").each(function () {
+        var key = $(this).attr("name");
+        if (key && datasets[key])
+          data.push(datasets[key]);
+      });
+
+      if(data.length > 0)
+        $.plot($('#placeholder'), data);
+    }
+});
+</script>
+
+ </body>
+</html>
+
