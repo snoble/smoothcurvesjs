@@ -11,7 +11,7 @@
     <body>
     <h1>Smooth Curves</h1>
 
-    <div id="placeholder" style="width:800px;height:400px;"></div>
+    <div id="placeholder" style="width:400px;height:400px;"></div>
     <p id="choices">Show:</p>
     <div id="data"></div>
 
@@ -19,7 +19,7 @@
 $(function () {
     var rawdata = [];
     var lastx = 0; var lasty=3*Math.random() - 1.5; 
-    for (var j = 0; j<30; j += 1){
+    for (var j = 0; j<15; j += 1){
       rawdata.push([lastx, lasty]);
       lastx += 1+Math.random()*5;
       lasty += 3*Math.random() - 1.5;
