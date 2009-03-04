@@ -22,22 +22,31 @@ $(function () {
     for (var j = 0; j<15; j += 1){
       rawdata.push([lastx, lasty]);
       lastx += 1+Math.random()*5;
-      lasty += 3*Math.random() - 1.5;
+      lasty += 5*Math.random() - 2.5;
     }
-    var smoother1 = new PlotSmoother(1);
-    var d1 = smoother1.smooth(rawdata);
-    var smoother2 = new PlotSmoother(2);
-    var d2 = smoother2.smooth(rawdata);
-    var datasets = {smoothdata1:{data:d1}, smoothdata2:{data:d2}, rawdata:{data:rawdata}};
+    var smoother11 = new PlotSmoother(1,1);
+    var d11 = smoother11.smooth(rawdata);
+    var smoother21 = new PlotSmoother(2,1);
+    var d21 = smoother21.smooth(rawdata);
+
+    var smoother12 = new PlotSmoother(1,2);
+    var d12 = smoother12.smooth(rawdata);
+    var smoother22 = new PlotSmoother(2,2);
+    var d22 = smoother22.smooth(rawdata);
+    var datasets = {smoothdata11:{data:d11}, smoothdata21:{data:d21}, smoothdata12:{data:d12}, smoothdata22:{data:d22}, rawdata:{data:rawdata}};
     var i = 0;
     $.each(datasets, function(key, val) {
         val.color = i;
         ++i;
     });
     $('#choices').append(
-      '<br/><input type="checkbox" name="smoothdata1" checked="checked">smoothdata 1</input>'
+      '<br/><input type="checkbox" name="smoothdata11" checked="checked">smoothdata 1 differentiable</input>'
     ).append(
-      '<br/><input type="checkbox" name="smoothdata2" checked="checked">smoothdata 2</input>'
+      '<br/><input type="checkbox" name="smoothdata21" checked="checked">smoothdata 2 differentiable</input>'
+    ).append(
+      '<br/><input type="checkbox" name="smoothdata12" checked="checked">smoothdata 1 doubly differentiable</input>'
+    ).append(
+      '<br/><input type="checkbox" name="smoothdata22" checked="checked">smoothdata 2 double differentiable</input>'
     ).append(
       '<br/><input type="checkbox" name="rawdata" checked="checked">rawdata</input>'
     ).find("input").click(plotAccordingToChoices);

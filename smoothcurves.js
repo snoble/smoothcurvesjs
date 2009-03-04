@@ -47,19 +47,26 @@ function getSlopesType2(leftpoint, centrepoint, rightpoint){
   return slope;
 }
 
-function PlotSmoother(slopetype){
+function PlotSmoother(slopetype, degree){
   this.slopefunctions = {1: getSlopesType1, 2: getSlopesType2};
+  this.polyfunctions = {1: getPoly1, 2: getPoly2};
   if(slopetype == null) slopetype = 1;
+  if(degree == null) degree = 1;
   this.setSlopeType(slopetype);
+  this.setDiffDegree(degree);
 }
 
 function setSmootherCoef(n){
-	this.smoother = n;
+  this.smoother = n;
 }
 
 function setSlopeType(slopetype){
   this.getSlopes = this.slopefunctions[slopetype];
-} 
+}
+
+function setDiffDegree(degree){
+  this.getPoly = this.polyfunctions[degree];
+}
 
 function smooth(rawdata){
   var fp = rawdata[0];
@@ -89,7 +96,7 @@ function smooth(rawdata){
   return d1;
 }
 
-function getPoly(f0, f0p, f0dp, f1, f1p, f1dp){
+function getPoly2(f0, f0p, f0dp, f1, f1p, f1dp){
   var c0, c1, c2, c3, c4,c5, a, b, c;
   c0 = f0; c1 = f0p; c2 = f0dp/2; 
   a = f1 - c0 - c1 - c2;
@@ -103,8 +110,21 @@ function getPoly(f0, f0p, f0dp, f1, f1p, f1dp){
   };
 }
 
+function getPoly1(f0, f0p, f0dp, f1, f1p, f1dp){
+  var c0, c1, c2, c3, a, b, c;
+  c0 = f0; c1 = f0p;
+  a = f1-c0-c1;
+  b = f1p-c1;
+  c2 = 3*a-b;
+  c3 = -2*a+b;
+  return function(x){
+    return c3*x*x*x + c2*x*x + c1*x + c0;
+  }
+
+}
+
 PlotSmoother.prototype.setSmootherCoef = setSmootherCoef;
 PlotSmoother.prototype.setSlopeType = setSlopeType;
+PlotSmoother.prototype.setDiffDegree = setDiffDegree;
 PlotSmoother.prototype.smooth = smooth;
-PlotSmoother.prototype.getPoly = getPoly;
  
