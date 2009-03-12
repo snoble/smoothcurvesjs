@@ -2,3 +2,5 @@ A js library for making smooth data for making smooth plots out of data
 
 the smooth example takes advantage of jquery and the flot js library
 
+This has been blogged about at http://blog.noblemail.ca/2009/03/improved-smooth-curves-in-javascript.html
+
