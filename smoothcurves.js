@@ -15,7 +15,7 @@ function getSlopesType1(leftpoint, centrepoint, rightpoint){
 
 function getSlopesType2(leftpoint, centrepoint, rightpoint){
   if(this.smoother == null)
-    this.smoother = 1;
+    this.setSmootherCoef(1);
   var leftwidth = centrepoint[0]-leftpoint[0];
   var leftrise = centrepoint[1]-leftpoint[1];
   var leftslope = leftrise/leftwidth;
@@ -47,8 +47,59 @@ function getSlopesType2(leftpoint, centrepoint, rightpoint){
   return slope;
 }
 
+function getSlopesFrom3P(leftpoint, centrepoint, rightpoint){
+  var leftwidth = centrepoint[0]-leftpoint[0];
+  var leftrise = centrepoint[1]-leftpoint[1];
+  var leftslope = leftrise/leftwidth;
+  
+  var rightwidth = rightpoint[0] - centrepoint[0];
+  var rightrise = rightpoint[1] - centrepoint[1];
+  var rightslope = rightrise/rightwidth;
+  
+  var slope = [];
+  if((leftslope <= 0 && rightslope >= 0) || (leftslope >= 0 && rightslope <= 0)){
+    slope[0] = 0;
+  }else{
+    slope[0] = (leftslope*rightwidth + rightslope*leftwidth)/(rightwidth+leftwidth);
+  }
+  slope = getSaneSlope(leftpoint, centrepoint, rightpoint, slope);
+  slope[1] = 0;
+  return slope;
+}
+
+function getSlopesType3(leftpoint, centrepoint, rightpoint, llpoint, rrpoint){
+  var ls = this.getSlopesFrom3P(llpoint, leftpoint, centrepoint)[0];
+  var rs = this.getSlopesFrom3P(centrepoint, rightpoint, rrpoint)[0];
+  var frac = 1/4;
+  var lwidth = frac*(centrepoint[0]-leftpoint[0]);
+  var nlp = [leftpoint[0]+lwidth, leftpoint[1]+ls*lwidth];
+  var rwidth = frac*(rightpoint[0] - centrepoint[0]);
+  var nrp = [rightpoint[0]-rwidth, rightpoint[1]-rs*rwidth];
+  var slope = this.getSlopesFrom3P(nlp, centrepoint, nrp);
+  return getSaneSlope(leftpoint, centrepoint, rightpoint, slope);
+}
+
+function getSaneSlope(leftpoint, centrepoint, rightpoint, slope){
+  var leftwidth = centrepoint[0]-leftpoint[0];
+  var leftrise = centrepoint[1]-leftpoint[1];
+  var leftslope = leftrise/leftwidth;
+  
+  var rightwidth = rightpoint[0] - centrepoint[0];
+  var rightrise = rightpoint[1] - centrepoint[1];
+  var rightslope = rightrise/rightwidth;
+
+  if(Math.abs(slope[0]) >= 3*Math.abs(rightslope)){
+    slope[0] = 3*rightslope;
+  }
+  if(Math.abs(slope[0]) >= 3*Math.abs(leftslope)){
+    slope[0] = 3*leftslope;
+  }
+  return slope;
+}
+
 function PlotSmoother(slopetype, degree){
-  this.slopefunctions = {1: getSlopesType1, 2: getSlopesType2};
+  this.setSmootherCoef(1);
+  this.slopefunctions = {1: getSlopesType1, 2: getSlopesFrom3P, 3:getSlopesType3};
   this.polyfunctions = {1: getPoly1, 2: getPoly2};
   if(slopetype == null) slopetype = 1;
   if(degree == null) degree = 1;
@@ -71,26 +122,30 @@ function setDiffDegree(degree){
 function smooth(rawdata){
   var fp = rawdata[0];
   rawdata.unshift([fp[0]-1, fp[1]]);
+  rawdata.unshift([fp[0]-2, fp[1]]);
   var lp = rawdata[rawdata.length - 1];
   rawdata.push([lp[0]+1, lp[1]]);
+  rawdata.push([lp[0]+2, lp[1]]);
   var d1 = [];
-  for (j = 1; j < rawdata.length -2; j += 1){
+  for (j = 2; j < rawdata.length -3; j += 1){
     var realwidth = rawdata[j+1][0] - rawdata[j][0];
     var xb = (rawdata[j-1][0] - rawdata[j][0])/realwidth;
     var xn = (rawdata[j+2][0] - rawdata[j][0])/realwidth;
-    var leftslopes = this.getSlopes(rawdata[j-1], rawdata[j], rawdata[j+1]);
-    var rightslopes = this.getSlopes(rawdata[j], rawdata[j+1], rawdata[j+2]);
+    var leftslopes = this.getSlopes(rawdata[j-1], rawdata[j], rawdata[j+1], rawdata[j-2], rawdata[j+2]);
+    var rightslopes = this.getSlopes(rawdata[j], rawdata[j+1], rawdata[j+2], rawdata[j-1], rawdata[j+3]);
     var f0p = leftslopes[0]*realwidth;
     var f1p = rightslopes[0]*realwidth;
     var f0dp = leftslopes[1]*realwidth*realwidth;
     var f1dp = rightslopes[1]*realwidth*realwidth;
     var f = this.getPoly(rawdata[j][1], f0p, f0dp, rawdata[j+1][1], f1p, f1dp);
-
-    for (var dx = 0; dx < 1; dx += 0.02){
+    var incr = 0.02/realwidth;
+    for (var dx = 0; dx < 1; dx += incr){
       d1.push([dx*realwidth + rawdata[j][0], f(dx)]);
     }
   }
   rawdata.shift();
+  rawdata.shift();
+  rawdata.pop();
   rawdata.pop();
 
   return d1;
@@ -126,5 +181,6 @@ function getPoly1(f0, f0p, f0dp, f1, f1p, f1dp){
 PlotSmoother.prototype.setSmootherCoef = setSmootherCoef;
 PlotSmoother.prototype.setSlopeType = setSlopeType;
 PlotSmoother.prototype.setDiffDegree = setDiffDegree;
+PlotSmoother.prototype.getSlopesFrom3P = getSlopesFrom3P;
 PlotSmoother.prototype.smooth = smooth;
  
