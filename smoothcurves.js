@@ -47,7 +47,7 @@ function getSlopesType2(leftpoint, centrepoint, rightpoint){
   return slope;
 }
 
-function getSlopesFrom3P(leftpoint, centrepoint, rightpoint){
+function getSlopesFrom3P(leftpoint, centrepoint, rightpoint, sane){
   var leftwidth = centrepoint[0]-leftpoint[0];
   var leftrise = centrepoint[1]-leftpoint[1];
   var leftslope = leftrise/leftwidth;
@@ -57,25 +57,28 @@ function getSlopesFrom3P(leftpoint, centrepoint, rightpoint){
   var rightslope = rightrise/rightwidth;
   
   var slope = [];
-  if((leftslope <= 0 && rightslope >= 0) || (leftslope >= 0 && rightslope <= 0)){
+  if(sane && ((leftslope <= 0 && rightslope >= 0) || (leftslope >= 0 && rightslope <= 0))){
     slope[0] = 0;
   }else{
     slope[0] = (leftslope*rightwidth + rightslope*leftwidth)/(rightwidth+leftwidth);
   }
-  slope = getSaneSlope(leftpoint, centrepoint, rightpoint, slope);
   slope[1] = 0;
+  if(!sane) return slope; 
+  slope = getSaneSlope(leftpoint, centrepoint, rightpoint, slope);
   return slope;
 }
 
 function getSlopesType3(leftpoint, centrepoint, rightpoint, llpoint, rrpoint){
-  var ls = this.getSlopesFrom3P(llpoint, leftpoint, centrepoint)[0];
-  var rs = this.getSlopesFrom3P(centrepoint, rightpoint, rrpoint)[0];
+  var sane = this.sane;
+  var ls = this.getSlopesFrom3P(llpoint, leftpoint, centrepoint, sane)[0];
+  var rs = this.getSlopesFrom3P(centrepoint, rightpoint, rrpoint, sane)[0];
   var frac = 1/4;
   var lwidth = frac*(centrepoint[0]-leftpoint[0]);
   var nlp = [leftpoint[0]+lwidth, leftpoint[1]+ls*lwidth];
   var rwidth = frac*(rightpoint[0] - centrepoint[0]);
   var nrp = [rightpoint[0]-rwidth, rightpoint[1]-rs*rwidth];
-  var slope = this.getSlopesFrom3P(nlp, centrepoint, nrp);
+  var slope = this.getSlopesFrom3P(nlp, centrepoint, nrp, sane);
+  if(!sane) return slope;
   return getSaneSlope(leftpoint, centrepoint, rightpoint, slope);
 }
 
@@ -97,6 +100,10 @@ function getSaneSlope(leftpoint, centrepoint, rightpoint, slope){
   return slope;
 }
 
+function setSane(s){
+  this.sane = s;
+}
+
 function PlotSmoother(slopetype, degree){
   this.setSmootherCoef(1);
   this.slopefunctions = {1: getSlopesType1, 2: getSlopesFrom3P, 3:getSlopesType3};
@@ -105,6 +112,7 @@ function PlotSmoother(slopetype, degree){
   if(degree == null) degree = 1;
   this.setSlopeType(slopetype);
   this.setDiffDegree(degree);
+  this.sane = false;
 }
 
 function setSmootherCoef(n){
@@ -182,5 +190,6 @@ PlotSmoother.prototype.setSmootherCoef = setSmootherCoef;
 PlotSmoother.prototype.setSlopeType = setSlopeType;
 PlotSmoother.prototype.setDiffDegree = setDiffDegree;
 PlotSmoother.prototype.getSlopesFrom3P = getSlopesFrom3P;
+PlotSmoother.prototype.setSane = setSane;
 PlotSmoother.prototype.smooth = smooth;
  

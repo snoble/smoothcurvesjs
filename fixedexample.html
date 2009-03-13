@@ -29,9 +29,12 @@ $(function () {
     var smoother2 = new PlotSmoother(2,1);
     var d2 = smoother2.smooth(rawdata);
     var smoother3 = new PlotSmoother(3,1);
+    smoother3.setSane(true);
     var d3 = smoother3.smooth(rawdata);
+    var smoother4 = new PlotSmoother(3,1);
+    var d4 = smoother4.smooth(rawdata);
 
-    var datasets = {smoothdata1:{data:d1}, smoothdata2:{data:d2}, smoothdata3:{data:d3}, rawdata:{data:rawdata}};
+    var datasets = {smoothdata1:{data:d1}, smoothdata2:{data:d2}, smoothdata3:{data:d3}, smoothdata4:{data:d4}, rawdata:{data:rawdata}};
     var i = 0;
     $.each(datasets, function(key, val) {
         val.color = i;
@@ -42,7 +45,9 @@ $(function () {
     ).append(
       '<br/><input type="checkbox" name="smoothdata2" checked="checked">smoothdata 2 differentiable</input>'
     ).append(
-      '<br/><input type="checkbox" name="smoothdata3" checked="checked">smoothdata 3 differentiable</input>'
+      '<br/><input type="checkbox" name="smoothdata3" checked="checked">smoothdata 3 (with sanity)</input>'
+    ).append(
+      '<br/><input type="checkbox" name="smoothdata4" checked="checked">smoothdata 3 (without sanity)</input>'
     ).append(
       '<br/><input type="checkbox" name="rawdata" checked="checked">rawdata</input>'
     ).find("input").click(plotAccordingToChoices);
