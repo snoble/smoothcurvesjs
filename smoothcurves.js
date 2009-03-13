@@ -113,6 +113,11 @@ function PlotSmoother(slopetype, degree){
   this.setSlopeType(slopetype);
   this.setDiffDegree(degree);
   this.sane = false;
+  this.dotpitch = 0.02;
+}
+
+function setDotPitch(x){
+  this.dotpitch = x;
 }
 
 function setSmootherCoef(n){
@@ -146,7 +151,7 @@ function smooth(rawdata){
     var f0dp = leftslopes[1]*realwidth*realwidth;
     var f1dp = rightslopes[1]*realwidth*realwidth;
     var f = this.getPoly(rawdata[j][1], f0p, f0dp, rawdata[j+1][1], f1p, f1dp);
-    var incr = 0.02/realwidth;
+    var incr = this.dotpitch/realwidth;
     for (var dx = 0; dx < 1; dx += incr){
       d1.push([dx*realwidth + rawdata[j][0], f(dx)]);
     }
@@ -191,5 +196,6 @@ PlotSmoother.prototype.setSlopeType = setSlopeType;
 PlotSmoother.prototype.setDiffDegree = setDiffDegree;
 PlotSmoother.prototype.getSlopesFrom3P = getSlopesFrom3P;
 PlotSmoother.prototype.setSane = setSane;
+PlotSmoother.prototype.setDotPitch = setDotPitch;
 PlotSmoother.prototype.smooth = smooth;
  
