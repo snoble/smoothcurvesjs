@@ -57,11 +57,7 @@ function getSlopesFrom3P(leftpoint, centrepoint, rightpoint, sane){
   var rightslope = rightrise/rightwidth;
   
   var slope = [];
-  if(sane && ((leftslope <= 0 && rightslope >= 0) || (leftslope >= 0 && rightslope <= 0))){
-    slope[0] = 0;
-  }else{
-    slope[0] = (leftslope*rightwidth + rightslope*leftwidth)/(rightwidth+leftwidth);
-  }
+  slope[0] = (leftslope*rightwidth + rightslope*leftwidth)/(rightwidth+leftwidth);
   slope[1] = 0;
   if(!sane) return slope; 
   slope = getSaneSlope(leftpoint, centrepoint, rightpoint, slope);
@@ -91,6 +87,10 @@ function getSaneSlope(leftpoint, centrepoint, rightpoint, slope){
   var rightrise = rightpoint[1] - centrepoint[1];
   var rightslope = rightrise/rightwidth;
 
+  if((leftslope <= 0 && rightslope >= 0) || (leftslope >= 0 && rightslope <= 0)){
+    slope[0] = 0;
+    return slope;
+  }
   if(Math.abs(slope[0]) >= 3*Math.abs(rightslope)){
     slope[0] = 3*rightslope;
   }
