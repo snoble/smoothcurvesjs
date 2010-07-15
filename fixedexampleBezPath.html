@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Smooth Example</title>
+    <!--[if IE]><script language="javascript" type="text/javascript" src="http://server.noblemail.ca/flot/excanvas.pack.js"></script><![endif]-->
+<script language="javascript" type="text/javascript" src="http://server.noblemail.ca/flot/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="http://server.noblemail.ca/~steven/raphael.js"></script>
+<script language="javascript" type="text/javascript" src="smoothcurves.js"></script>
+ </head>
+    <body>
+    <h1>Smooth Curves</h1>
+
+    <div id="placeholder" style="width:400px;height:400px;"></div>
+    <p id="choices">Show:</p>
+    <div id="data"></div>
+
+<script id="source" language="javascript" type="text/javascript">
+$(function () {
+  var rawdata = [[0,100], [50,100], [100,100], [150,300], [200,200], [250,150], [300,150], [400, 150]];
+    /*var lastx = 0; var lasty=3*Math.random() - 1.5; 
+    for (var j = 0; j<15; j += 1){
+      rawdata.push([lastx, lasty]);
+      lastx += 1+Math.random()*5;
+      lasty += 5*Math.random() - 2.5;
+    }*/
+    var smoother1 = new PlotSmoother(1,1);
+    var d1 = smoother1.smoothBezPath(rawdata);
+    var smoother2 = new PlotSmoother(2,1);
+    var d2 = smoother2.smoothBezPath(rawdata);
+    var smoother3 = new PlotSmoother(3,1);
+    smoother3.setSane(true);
+    var d3 = smoother3.smoothBezPath(rawdata);
+    var smoother4 = new PlotSmoother(3,1);
+    var d4 = smoother4.smoothBezPath(rawdata);
+    r = Raphael("placeholder");
+    r.path(d1);
+    r.path(d3);
+    r.path(d4);
+console.log(d4);
+});
+</script>
+
+ </body>
+</html>
+
