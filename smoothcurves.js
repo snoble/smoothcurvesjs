@@ -164,6 +164,42 @@ function smooth(rawdata){
   return d1;
 }
 
+
+function smoothBezPath(rawdata){
+  var path = "M"+rawdata[0][0]+","+rawdata[0][1];
+
+  var fp = rawdata[0];
+  rawdata.unshift([fp[0]-1, fp[1]]);
+  rawdata.unshift([fp[0]-2, fp[1]]);
+  var lp = rawdata[rawdata.length - 1];
+  rawdata.push([lp[0]+1, lp[1]]);
+  rawdata.push([lp[0]+2, lp[1]]);
+
+  for (j = 2; j < rawdata.length -3; j += 1){
+    var realwidth = rawdata[j+1][0] - rawdata[j][0];
+    var xb = (rawdata[j-1][0] - rawdata[j][0])/realwidth;
+    var xn = (rawdata[j+2][0] - rawdata[j][0])/realwidth;
+    var leftslopes = this.getSlopes(rawdata[j-1], rawdata[j], rawdata[j+1], rawdata[j-2], rawdata[j+2]);
+    var rightslopes = this.getSlopes(rawdata[j], rawdata[j+1], rawdata[j+2], rawdata[j-1], rawdata[j+3]);
+    var f0p = leftslopes[0]*realwidth;
+    var f1p = rightslopes[0]*realwidth;
+    var f0dp = leftslopes[1]*realwidth*realwidth;
+    var f1dp = rightslopes[1]*realwidth*realwidth;
+
+    var control1 = [rawdata[j][0]*2/3+rawdata[j+1][0]/3, rawdata[j][1]+f0p/3];
+    var control2 = [rawdata[j][0]/3+rawdata[j+1][0]*2/3, rawdata[j+1][1]-f1p/3]; 
+    var d1 = [control1[0], control1[1], control2[0], control2[1], rawdata[j+1][0], rawdata[j+1][1]];
+    path += " C";
+    path += d1;
+    
+  }
+  rawdata.shift();
+  rawdata.shift();
+  rawdata.pop();
+  rawdata.pop();
+  return path;
+}
+
 function getPoly2(f0, f0p, f0dp, f1, f1p, f1dp){
   var c0, c1, c2, c3, c4,c5, a, b, c;
   c0 = f0; c1 = f0p; c2 = f0dp/2; 
@@ -198,4 +234,5 @@ PlotSmoother.prototype.getSlopesFrom3P = getSlopesFrom3P;
 PlotSmoother.prototype.setSane = setSane;
 PlotSmoother.prototype.setDotPitch = setDotPitch;
 PlotSmoother.prototype.smooth = smooth;
+PlotSmoother.prototype.smoothBezPath = smoothBezPath;
  
