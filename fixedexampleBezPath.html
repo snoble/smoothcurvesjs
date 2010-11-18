@@ -33,9 +33,9 @@ $(function () {
     var smoother4 = new PlotSmoother(3,1);
     var d4 = smoother4.smoothBezPath(rawdata);
     r = Raphael("placeholder");
-    r.path(d1);
-    r.path(d3);
-    r.path(d4);
+    r.path(d1).attr({stroke: "red"});
+    r.path(d3).attr({stroke: "blue"});
+    r.path(d4).attr({stroke: "green"});
 });
 </script>
 
